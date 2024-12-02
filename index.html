@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="logoicon1.PNG" type="x-icon">
+    <title>Quiz App</title>
+</head>
+<body>
+    <div class="alert">Alert</div>
+    <div class="btn startBtn">Start</div>
+    <div class="container">
+        <h1>Let's play a Quiz Game</h1>
+        <div class="question"></div>
+        <div class="choices"></div>
+        <button class="btn nextBtn">Next</button>
+        <div class="scoreCard"></div>
+        <div class="timer"></div>
+        <div class="btn backBtn" style="display: none;">Back to Home</div>
+    </div>
+    <div class="footer">Build By  Houmani. All Right Reserved</div>
+
+    <script>
+        const backBtn = document.querySelector('.backBtn');
+
+        backBtn.addEventListener('click', () => {
+            startBtn.style.display = "block"; 
+            container.style.display = "none"; 
+            backBtn.style.display = "none"; 
+            nextBtn.style.display = "none"; 
+            scoreCard.textContent = "";
+            timer.style.display = "none";
+            alert.style.display = "none"; 
+        });
+        backBtn.style.display = "block";
+
+        const container = document.querySelector('.container');
+        const questionBox = document.querySelector('.question');
+        const choicesBox = document.querySelector('.choices');
+        const nextBtn = document.querySelector('.nextBtn');
+        const scoreCard = document.querySelector('.scoreCard');
+        const alert = document.querySelector('.alert');
+        const startBtn = document.querySelector('.startBtn');
+        const timer = document.querySelector('.timer');
+
+
+        const quiz = [
+            {
+                question: "Q. Which of the following is not a CSS box model property?",
+                choices: ["margin", "padding", "border-radius", "border-collapse"],
+                answer: "border-collapse"
+            },
+            {
+                question: "Q. Which of the following is not a valid way to declare a function in JavaScript?",
+                choices: ["function myFunction() {}", " let myFunction = function() {};", "myFunction: function() {}", "const myFunction = () => {};"],
+                answer: "myFunction: function() {}"
+            },
+            {
+                question: "Q. Which of the following is not a JavaScript data type?",
+                choices: ["string", "boolean", "object", "float"],
+                answer: "float"
+            },
+            {
+                question: "Q. What is the purpose of the this keyword in JavaScript?",
+                choices: ["It refers to the current function.", "It refers to the current object.", "It refers to the parent object.", " It is used for comments."],
+                answer: "It refers to the current object."
+            },
+            {
+                question: "Q. Which of the following is not a semantic HTML element?",
+                choices: ["<article>", "<div>", "<header>", "<section>"],
+                answer: "<div>"
+            },
+            {
+                question: "Q. What does the '===' operator in JavaScript check for?",
+                choices: ["Equality only", "Equality and type", "Type only", "None of the above"],
+                answer: "Equality and type"
+            },
+            {
+                question: "Q. Which of the following is not a valid HTTP method?",
+                choices: ["GET", "POST", "PULL", "DELETE"],
+                answer: "PULL"
+            },
+            {
+                question: "Q. In CSS, what does 'z-index' control?",
+                choices: ["Text size", "Element stacking order", "Flexbox alignment", "Visibility"],
+                answer: "Element stacking order"
+            },
+            {
+                question: "Q. Which of the following is not a JavaScript framework or library?",
+                choices: ["React", "Vue", "Angular", "JQueryUI"],
+                answer: "JQueryUI"
+            },
+            {
+                "question": "Q. Which of the following is not a CSS property for positioning?",
+                "choices": ["position", "top", "left", "align-items"],
+                "answer": "align-items"
+            },
+            {
+                "question": "Q. Which of the following is not a valid data type in JavaScript?",
+                "choices": ["string", "undefined", "integer", "symbol"],
+                "answer": "integer"
+            },
+            {
+                "question": "Q. What is the purpose of the 'return' statement in JavaScript?",
+                "choices": ["To output data to the console", "To terminate a function and return a value", "To declare a variable", "To call a function"],
+                "answer": "To terminate a function and return a value"
+            },
+            {
+                "question": "Q. Which of the following is not a valid CSS color format?",
+                "choices": ["#ff5733", "rgb(255, 87, 51)", "hsl(12, 100%, 50%)", "rgba(255, 87, 51) 0.5"],
+                "answer": "rgba(255, 87, 51) 0.5"
+            },
+            {
+                "question": "Q. Which of the following is not a valid loop structure in JavaScript?",
+                "choices": ["for", "while", "foreach", "loop"],
+                "answer": "loop"
+            },
+            {
+                "question": "Q. What does the 'window.onload' event do in JavaScript?",
+                "choices": ["It triggers when the document is fully loaded", "It triggers when a button is clicked", "It is used to initialize variables", "It defines the page title"],
+                "answer": "It triggers when the document is fully loaded"
+            },
+            {
+                "question": "Q. Which of the following is not a valid CSS selector?",
+                "choices": [".class", "#id", "element", ":hover"],
+                "answer": "element"
+            },
+            {
+                "question": "Q. What does the 'localStorage' object do in JavaScript?",
+                "choices": ["Stores data for the session", "Stores data across sessions", "Stores data on the server", "Stores cookies"],
+                "answer": "Stores data across sessions"
+            },
+            {
+                "question": "Q. Which of the following is not a type of JavaScript function?",
+                "choices": ["Anonymous function", "Arrow function", "Regular function", "Static function"],
+                "answer": "Static function"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizOver = false;
+        let timeLeft = 15;
+        let timerID = null;
+
+        const showQuestions = () => {
+            const questionDetails = quiz[currentQuestionIndex];
+            questionBox.textContent = questionDetails.question;
+
+            choicesBox.textContent = "";
+            for (let i = 0; i < questionDetails.choices.length; i++) {
+                const currentChoice = questionDetails.choices[i];
+                const choiceDiv = document.createElement('div');
+                choiceDiv.textContent = currentChoice;
+                choiceDiv.classList.add('choice');
+                choicesBox.appendChild(choiceDiv);
+
+                choiceDiv.addEventListener('click', () => {
+                    if (choiceDiv.classList.contains('selected')) {
+                        choiceDiv.classList.remove('selected');
+                    }
+                    else {
+                        choiceDiv.classList.add('selected');
+                    }
+                });
+            }
+
+            if(currentQuestionIndex < quiz.length){
+                startTimer();
+            }
+        }
+
+        const checkAnswer = () => {
+            const selectedChoice = document.querySelector('.choice.selected');
+            if (selectedChoice.textContent === quiz[currentQuestionIndex].answer) {
+                displayAlert("Correct Answer!");
+                score++;
+            }
+            else {
+                displayAlert(`Wrong Answer! ${quiz[currentQuestionIndex].answer} is the Correct Answer`);
+            }
+            timeLeft = 15;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quiz.length) {
+                showQuestions();
+            }
+            else {
+                stopTimer();
+                showScore();
+            }
+        }
+
+        const showScore = () => {
+            questionBox.textContent = "";
+            choicesBox.textContent = "";
+            scoreCard.textContent = `You Scored ${score} out of ${quiz.length}!`;
+            displayAlert("You have completed this quiz!");
+            nextBtn.textContent = "Play Again";
+            quizOver = true;
+            timer.style.display = "none";
+        }
+
+        const displayAlert = (msg) => {
+            alert.style.display = "block";
+            alert.textContent = msg;
+            setTimeout(()=>{
+                alert.style.display = "none";
+            }, 2000);
+        }
+
+        const startTimer = () => {
+            clearInterval(timerID); 
+            timer.textContent = timeLeft;
+
+            const countDown = ()=>{
+                timeLeft--;
+                timer.textContent = timeLeft;
+                if(timeLeft === 0){
+                    const confirmUser = confirm("Time Up!!! Do you want to play the quiz again");
+                    if(confirmUser){
+                        timeLeft = 15;
+                        startQuiz();
+                    }
+                    else{
+                        startBtn.style.display = "block";
+                        container.style.display = "none";
+                        return;
+                    }
+                }
+            }
+            timerID = setInterval(countDown, 1000);
+        }
+
+        const stopTimer = () =>{
+            clearInterval(timerID);
+        }
+
+        const shuffleQuestions = () =>{
+            for(let i=quiz.length-1; i>0; i--){
+                const j = Math.floor(Math.random() * (i+1));
+                [quiz[i], quiz[j]] = [quiz[j], quiz[i]];
+            }
+            currentQuestionIndex = 0;
+            showQuestions();
+        }
+
+        const startQuiz = () =>{
+            timeLeft = 15;
+            timer.style.display = "flex";
+            shuffleQuestions();
+        }
+
+        startBtn.addEventListener('click', ()=>{
+            startBtn.style.display = "none";
+            container.style.display = "block";
+            startQuiz();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const selectedChoice = document.querySelector('.choice.selected');
+            if (!selectedChoice && nextBtn.textContent === "Next") {
+                displayAlert("Select your answer");
+                return;
+            }
+            if (quizOver) {
+                nextBtn.textContent = "Next";
+                scoreCard.textContent = "";
+                currentQuestionIndex = 0;
+                quizOver = false;
+                score = 0;
+                startQuiz();
+            }
+            else {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
